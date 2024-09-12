@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+
+# And these subdirectories
+!catkin_ws/

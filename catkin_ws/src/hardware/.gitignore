@@ -1,0 +1,17 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+!CMakeLists.txt
+!package.xml
+
+# And these subdirectories
+!arduino_firmware/
+!src/
+!include/
+!launch/
+!scripts/
+

@@ -1,0 +1,11 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+!Blink.h
+!Blink.cpp
+
+# And these subdirectories

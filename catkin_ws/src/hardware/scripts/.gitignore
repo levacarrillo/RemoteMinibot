@@ -1,0 +1,12 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+!robot_status_node.py
+
+# And these subdirectories
+
+

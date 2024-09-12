@@ -1,0 +1,11 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+!Sensors.h
+!Sensors.cpp
+
+# And these subdirectories

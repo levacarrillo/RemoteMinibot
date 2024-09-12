@@ -1,0 +1,11 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+!Motors.h
+!Motors.cpp
+
+# And these subdirectories
