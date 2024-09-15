@@ -9,4 +9,5 @@
 
 # And these subdirectories
 !hardware/
+!mobile_base/
 # !Rosserial_noetic/
