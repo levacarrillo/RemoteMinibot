@@ -1,0 +1,14 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+!CMakeLists.txt
+
+# And these subdirectories
+!src/
+!CMakeLists.txt
+!package.xml
+# !Rosserial_noetic/

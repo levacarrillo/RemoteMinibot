@@ -1,0 +1,12 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+!mobile_base_node.cpp
+
+# And these subdirectories
+
+# !Rosserial_noetic/
