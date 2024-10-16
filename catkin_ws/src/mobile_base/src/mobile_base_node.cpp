@@ -1,17 +1,16 @@
-// Cabeceras para ros
 #include <ros/ros.h>
-// Cabeceras para mensajes estandar
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float32MultiArray.h>
-// Cabeceras para el tipo de mensaje twist
 #include <geometry_msgs/Twist.h>
-// Cabeceras para el estado de los joints
-#include <sensor_msgs/JointState.h>
-// Cabeceras para realizar las transformaciones
-#include <tf/transform_broadcaster.h>
-#include <tf/transform_listener.h>
-// Cabeceras para la Odometria
+#include <geometry_msgs/TransformStamped.h>
 #include <nav_msgs/Odometry.h>
+#include <sensor_msgs/JointState.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
+// #include <tf/transform_broadcaster.h>
+// #include <tf/transform_listener.h>
 
 #define TICKS_PER_METER 4442.0
 
@@ -32,7 +31,7 @@ void callbackEncoders(const std_msgs::Int32MultiArray::ConstPtr &msg){
 }
 
 void callbackCmdVel(const geometry_msgs::Twist::ConstPtr & msg){
-	//std::cout << "Reciving command robot velociy" << std::endl;
+	std::cout << "Recived command robot velociy" << std::endl;
 	float rightSpeed = msg->linear.x + msg->angular.z * BASE_WIDTH / 2.0;
 	float leftSpeed = msg->linear.x - msg->angular.z * BASE_WIDTH / 2.0;
 
@@ -70,68 +69,76 @@ void computeOdom(){
 }
 
 int main(int argc, char ** argv){
-	//Inicializacion del nodo
+	std::cout << "Starting mobile_base_node by Luis Nava..." << std::endl;
 	ros::init(argc, argv, "mobile_base_node");
-	//Se crea el mando del nodo
 	ros::NodeHandle nh;
-	//Se crea el objeto que nos permite realizar el muestreo de los mensajes
 	ros::Rate rate(50);
 
-	// Se crean los subscriptores de los mensajes
 	ros::Subscriber subEncoders = nh.subscribe("/encoders_data", 1, callbackEncoders);
 	ros::Subscriber subCmdVel = nh.subscribe("/cmd_vel", 1, callbackCmdVel);
 
-	// Publicador del estado de los joints
 	ros::Publisher pubJointState = nh.advertise<sensor_msgs::JointState>("/joint_states", 1);
-	// Publicador de la posicion del robot con base en odometria
 	ros::Publisher pubOdom  = nh.advertise<nav_msgs::Odometry>("odom", 50);
-	// Publicador del las velocidades de cada motor	
+
 	pubSpeeds = nh.advertise<std_msgs::Float32MultiArray>("/speed_motors", 1);
 	
-	// Nombre de los joints
 	std::string jointNames[2] = {"left_wheel_joint_connect", "right_wheel_joint_connect"};
 	float jointPositions[2] = {0.0, 0.0};
 	sensor_msgs::JointState jointState;
 
-	// Datos de odometria
 	nav_msgs::Odometry odom;
 
-	// Se asignan los nombres de los joints y las dimensiones 
 	jointState.name.insert(jointState.name.begin(), jointNames, jointNames + 2);
 	jointState.position.insert(jointState.position.begin(), jointPositions, jointPositions + 2);
 
-	// El objeto que envía las transformaciones
-	tf::TransformBroadcaster br;
+	// tf::TransformBroadcaster br;
+	tf2_ros::TransformBroadcaster br;
 
-	// Loop de ros
 	while(ros::ok()){
 		computeOdom();
 
-		// Transformaciones
-		tf::Transform transform;
-		transform.setOrigin(tf::Vector3(robotX, robotY, 0));
-		tf::Quaternion q;
-		q.setRPY(0, 0, robotT);
-		transform.setRotation(q);
+		geometry_msgs::TransformStamped transformStamped;
 
-		// Se envia la transformaciones del base_link al odom
-		br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "odom", "base_link"));
+		transformStamped.header.stamp = ros::Time::now();
+		transformStamped.header.frame_id = "odom";
+		transformStamped.child_frame_id = "base_link";
 		
-		// Odometria 
+		transformStamped.transform.translation.x = robotX;
+		transformStamped.transform.translation.y = robotY;
+		transformStamped.transform.translation.z = 0.0;
+
+		tf2::Quaternion q;
+		q.setRPY(0, 0, robotT);
+
+		transformStamped.transform.rotation.x = q.x();
+		transformStamped.transform.rotation.y = q.y();
+		transformStamped.transform.rotation.z = q.z();
+		transformStamped.transform.rotation.w = q.w();
+		
+		br.sendTransform(transformStamped);
+		
+
+		// tf::Transform transform;
+		// transform.setOrigin(tf::Vector3(robotX, robotY, 0));
+		// tf::Quaternion q;
+		// q.setRPY(0, 0, robotT);
+		// transform.setRotation(q);
+
+		// br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "odom", "base_link"));
+		
+		// geometry_msgs::Quaternion odom_quad = tf::createQuaternionMsgFromYaw(robotT);
+		geometry_msgs::Quaternion odom_quad = tf2::toMsg(q);
+
 		odom.header.stamp = ros::Time::now();
 		odom.header.frame_id = "odom";
-		geometry_msgs::Quaternion odom_quad = tf::createQuaternionMsgFromYaw(robotT);
-
 		odom.pose.pose.position.x = robotX;
 		odom.pose.pose.position.y = robotY;
 		odom.pose.pose.position.z =    0.0;
 		odom.pose.pose.orientation = odom_quad;
 
-
-		// Se Publican el estado de los joints
 		pubJointState.publish(jointState);
-		// Se Publica la odometria
 		pubOdom.publish(odom);
+
 		rate.sleep();
 		ros::spinOnce();
 	}

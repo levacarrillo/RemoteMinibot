@@ -1,10 +1,12 @@
 <launch>
     <param name="selected_robot" type="str" value="Minibot 2" />
-    <!-- Node to connect with micro-controller -->
-    <node name="robot_controller" pkg="rosserial_python" type="serial_node.py" required="true" output="screen">
-        <param name="port" value="/dev/ttyACM0"/>
-        <param name="baud" value="200000"/>
-    </node>
-    <!-- Node to transform values from micro-controller -->
-    <node name="robot_status_node" pkg="hardware" type="robot_status_node.py" />
+    <group ns="hardware">
+        <!-- Node to connect with micro-controller -->
+        <node name="robot_controller" pkg="rosserial_python" type="serial_node.py" required="true" output="screen" >
+            <param name="port" value="/dev/ttyACM0"/>
+            <param name="baud" value="200000"/>
+        </node>
+        <!-- Node to get data from hardware -->
+        <node name="robot_status_node" pkg="hardware" type="robot_status_node.py" />
+    </group>
 </launch>
