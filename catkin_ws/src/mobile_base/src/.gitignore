@@ -6,6 +6,7 @@
 !LICENCE
 !readme.MD
 !mobile_base_node.cpp
+!move_minibot_node.cpp
 
 # And these subdirectories
 

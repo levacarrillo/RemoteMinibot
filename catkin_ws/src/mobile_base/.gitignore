@@ -8,7 +8,10 @@
 !CMakeLists.txt
 
 # And these subdirectories
+!include/
+!launch/
 !src/
+!srv/
 !CMakeLists.txt
 !package.xml
 # !Rosserial_noetic/
