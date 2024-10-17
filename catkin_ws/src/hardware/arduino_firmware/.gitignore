@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENSE
+!readme.MD
+
+!Makefile
+!minibot_startup.ino
