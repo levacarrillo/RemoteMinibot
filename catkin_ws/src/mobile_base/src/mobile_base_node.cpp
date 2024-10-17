@@ -9,9 +9,6 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-// #include <tf/transform_broadcaster.h>
-// #include <tf/transform_listener.h>
-
 #define TICKS_PER_METER 4442.0
 
 #define BASE_WIDTH 0.095
@@ -31,7 +28,7 @@ void callbackEncoders(const std_msgs::Int32MultiArray::ConstPtr &msg){
 }
 
 void callbackCmdVel(const geometry_msgs::Twist::ConstPtr & msg){
-	std::cout << "Recived command robot velociy" << std::endl;
+	std::cout << "Received command robot velociy" << std::endl;
 	float rightSpeed = msg->linear.x + msg->angular.z * BASE_WIDTH / 2.0;
 	float leftSpeed = msg->linear.x - msg->angular.z * BASE_WIDTH / 2.0;
 
@@ -91,12 +88,12 @@ int main(int argc, char ** argv){
 	jointState.name.insert(jointState.name.begin(), jointNames, jointNames + 2);
 	jointState.position.insert(jointState.position.begin(), jointPositions, jointPositions + 2);
 
-	// tf::TransformBroadcaster br;
 	tf2_ros::TransformBroadcaster br;
 
 	while(ros::ok()){
 		computeOdom();
 
+		// SENDING BROADCASTER
 		geometry_msgs::TransformStamped transformStamped;
 
 		transformStamped.header.stamp = ros::Time::now();
@@ -117,16 +114,7 @@ int main(int argc, char ** argv){
 		
 		br.sendTransform(transformStamped);
 		
-
-		// tf::Transform transform;
-		// transform.setOrigin(tf::Vector3(robotX, robotY, 0));
-		// tf::Quaternion q;
-		// q.setRPY(0, 0, robotT);
-		// transform.setRotation(q);
-
-		// br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "odom", "base_link"));
-		
-		// geometry_msgs::Quaternion odom_quad = tf::createQuaternionMsgFromYaw(robotT);
+		// SENDING ODOMETRY DATA
 		geometry_msgs::Quaternion odom_quad = tf2::toMsg(q);
 
 		odom.header.stamp = ros::Time::now();
@@ -135,9 +123,10 @@ int main(int argc, char ** argv){
 		odom.pose.pose.position.y = robotY;
 		odom.pose.pose.position.z =    0.0;
 		odom.pose.pose.orientation = odom_quad;
-
-		pubJointState.publish(jointState);
 		pubOdom.publish(odom);
+
+		// PUBLISHING JOINT STATE
+		pubJointState.publish(jointState);
 
 		rate.sleep();
 		ros::spinOnce();
