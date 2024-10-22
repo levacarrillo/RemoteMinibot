@@ -5,10 +5,11 @@
 
 Motors* _motors;
 
-int LEFT  = 0;
-int RIGHT = 1;
+int LEFT  = 0, RIGHT = 1;
 
 float goal_speed[2];
+float curr_speed[2];
+
 volatile long rel_left_count  = 0;
 volatile long rel_right_count = 0;
 
@@ -25,21 +26,17 @@ double last_right_speed_error = 0;
 
 PID::PID() {}
 
-float* calculateCurrentSpeeds(volatile long left_count, volatile long right_count, double elapsed_time) {
-    static float speed[2];
+void calculateCurrentSpeeds(volatile long left_count, volatile long right_count, double elapsed_time) {
     if (elapsed_time >= sampling_time) {
         rel_left_count  = left_count  - rel_left_count;
         rel_right_count = right_count - rel_right_count;
-        float curr_left_speed  = M_PI * wheel_diameter * fabs(rel_left_count)  / pulses_per_turn * 1000.0 / elapsed_time;
-        float curr_right_speed = M_PI * wheel_diameter * fabs(rel_right_count) / pulses_per_turn * 1000.0 / elapsed_time;
+        curr_speed[LEFT]  = M_PI * wheel_diameter * fabs(rel_left_count)  / pulses_per_turn * 1000.0 / elapsed_time;
+        curr_speed[RIGHT] = M_PI * wheel_diameter * fabs(rel_right_count) / pulses_per_turn * 1000.0 / elapsed_time;
         
         rel_left_count  = left_count;
         rel_right_count = right_count;
-        speed[LEFT]  = curr_left_speed;
-        speed[RIGHT] = curr_right_speed;
-    } 
-
-    return speed;
+        previous_time = elapsed_time + previous_time;
+    }
 }
 
 int* speedsToPwm(double left_pid_output, double right_pid_output) {
@@ -85,6 +82,15 @@ float* PID::getRightPID() {
     return pid;
 }
 
+float* PID::getCurrVelocities() {
+    static float vel[4];
+    vel[0] = goal_speed[LEFT];
+    vel[1] = curr_speed[LEFT];
+    vel[2] = goal_speed[RIGHT];
+    vel[3] = curr_speed[RIGHT];
+    return vel;
+}
+
 void PID::setSpeeds(float goal_left_speed, float goal_right_speed) {
     goal_speed[LEFT]  = goal_left_speed;
     goal_speed[RIGHT] = goal_right_speed;
@@ -95,10 +101,10 @@ void PID::setEncodersCount(volatile long left_count, volatile long right_count) 
     unsigned int current_time = millis();
     bool left_foward = true, right_foward = true;
     double elapsed_time = (double)(current_time - previous_time);
-    float* current_speed = calculateCurrentSpeeds(left_count, right_count, elapsed_time);
+    calculateCurrentSpeeds(left_count, right_count, elapsed_time);
 
-    double left_speed_error  = fabs(goal_speed[LEFT])  - current_speed[LEFT];
-    double right_speed_error = fabs(goal_speed[RIGHT]) - current_speed[RIGHT];
+    double left_speed_error  = fabs(goal_speed[LEFT])  - curr_speed[LEFT];
+    double right_speed_error = fabs(goal_speed[RIGHT]) - curr_speed[RIGHT];
 
     float left_speed_error_area  = left_speed_error  * elapsed_time;
     float right_speed_error_area = right_speed_error * elapsed_time;
@@ -116,7 +122,7 @@ void PID::setEncodersCount(volatile long left_count, volatile long right_count) 
 
     int* pwm = speedsToPwm(left_pid_output, right_pid_output);
     
-    previous_time = current_time;
+    // previous_time = current_time;
     last_left_speed_error  = left_speed_error;
     last_right_speed_error = right_speed_error;
     

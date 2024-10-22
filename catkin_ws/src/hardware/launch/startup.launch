@@ -1,7 +1,7 @@
 <launch>
-    <param name="selected_robot" type="str" value="Minibot 2" />
-    <rosparam command="load" file="$(find hardware)/params/pid.yaml" />
     <group ns="hardware">
+        <rosparam command="load" file="$(find hardware)/params/robot_id.yaml" />
+        <rosparam command="load" file="$(find hardware)/params/pid.yaml" />
         <!-- Node to connect with micro-controller -->
         <node name="robot_controller" pkg="rosserial_python" type="serial_node.py" required="true" output="screen" >
             <param name="port" value="/dev/ttyACM0"/>

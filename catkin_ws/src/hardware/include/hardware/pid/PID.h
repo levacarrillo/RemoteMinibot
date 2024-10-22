@@ -11,6 +11,7 @@ class PID {
         PID();
         float* getLeftPID();
         float* getRightPID();
+        float* getCurrVelocities();
         void setLeftPID(float* PID);
         void setRightPID(float* PID);
         void setSpeeds(float left_speed, float right_speed);
