@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot name="minibot">
+  <!-- Robot description -->
+  <material name="gray">
+    <color rgba="0.5 0.5 0.5 1.0" />
+  </material>
+
+  <!-- Link para el base_link -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.12" radius="0.065" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.06" />
+      <material name="gray" />
+    </visual>
+  </link>
+
+  <!-- Link para el código ArUco -->
+  <link name="aruco_marker">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.001"/>
+      </geometry>
+      <material name="aruco_material">
+        <texture filename="package://arena_mapping/assets/images/aruco_example.png"/>
+      </material>
+    </visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </link>
+
+  <!-- Joint que une aruco_marker con base_link -->
+  <joint name="aruco_to_base" type="fixed">
+    <parent link="base_link"/>
+    <child link="aruco_marker"/>
+    <origin xyz="0 0 0.12" rpy="0 0 0"/> 
+  </joint>
+</robot>

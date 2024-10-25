@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.0.2)
 project(mobile_base)
 
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
   roscpp
   rospy
   std_msgs
+  geometry_msgs
+  sensor_msgs
   tf2_ros
   tf2_geometry_msgs
   nav_msgs
@@ -27,13 +28,13 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES mobile_base
- CATKIN_DEPENDS roscpp rospy std_msgs tf2_ros tf2_geometry_msgs
+ CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs tf2_ros tf2_geometry_msgs message_runtime
 #  DEPENDS system_lib
 )
 
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
