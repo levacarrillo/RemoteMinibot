@@ -134,6 +134,7 @@ void setup() {
 }
 
 void loop() {
+  getPIDValues();
   motors.setEncodersCount(encoders.get_left_count(), encoders.get_right_count());
   publish_encoders();
   publish_curr_speeds();

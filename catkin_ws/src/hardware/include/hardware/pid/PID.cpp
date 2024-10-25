@@ -121,8 +121,7 @@ void PID::setEncodersCount(volatile long left_count, volatile long right_count) 
                        RD * right_speed_error_gradient;
 
     int* pwm = speedsToPwm(left_pid_output, right_pid_output);
-    
-    // previous_time = current_time;
+
     last_left_speed_error  = left_speed_error;
     last_right_speed_error = right_speed_error;
     
