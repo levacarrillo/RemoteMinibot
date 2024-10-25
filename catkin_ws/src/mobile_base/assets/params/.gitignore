@@ -3,14 +3,11 @@
 
 # But these files
 !.gitignore
-!LICENCE
+!LICENSE
 !readme.MD
+
 !CMakeLists.txt
 !package.xml
 
+!profile.yaml
 # And these subdirectories
-!assets/
-!include/
-!launch/
-!src/
-!srv/
