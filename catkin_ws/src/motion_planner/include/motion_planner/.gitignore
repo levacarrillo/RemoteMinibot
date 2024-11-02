@@ -5,9 +5,8 @@
 !.gitignore
 !LICENCE
 !readme.MD
-!CMakeLists.txt
+
+!motion_planner.h
+!motion_planner_utilities.h
 
 # And these subdirectories
-!hardware/
-!mobile_base/
-!motion_planner/

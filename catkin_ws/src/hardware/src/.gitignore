@@ -5,8 +5,9 @@
 !.gitignore
 !LICENCE
 !readme.MD
-!laser_scan_node.cpp
 
+!laser_scan_node.cpp
+!light_sensors_node.cpp
 # And these subdirectories
 
 # !Rosserial_noetic/

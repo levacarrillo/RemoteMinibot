@@ -5,9 +5,7 @@
 !.gitignore
 !LICENCE
 !readme.MD
-!CMakeLists.txt
+
+!LightReadings.srv
 
 # And these subdirectories
-!hardware/
-!mobile_base/
-!motion_planner/

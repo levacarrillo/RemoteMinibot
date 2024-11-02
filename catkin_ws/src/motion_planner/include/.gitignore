@@ -3,11 +3,8 @@
 
 # But these files
 !.gitignore
-!LICENCE
+!LICENSE
 !readme.MD
-!CMakeLists.txt
 
 # And these subdirectories
-!hardware/
-!mobile_base/
 !motion_planner/

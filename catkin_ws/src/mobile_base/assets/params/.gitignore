@@ -9,5 +9,6 @@
 !CMakeLists.txt
 !package.xml
 
-!profile.yaml
+!profile_params.yaml
+
 # And these subdirectories

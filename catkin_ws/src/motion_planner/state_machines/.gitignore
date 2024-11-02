@@ -1,0 +1,15 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENSE
+!readme.MD
+
+!light_follower.h
+!sm_avoid_obstacles.h
+!sm_avoidance_destination.h
+!sm_destination.h
+!user_sm.h
+
+# And these subdirectories
