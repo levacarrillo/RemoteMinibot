@@ -1,0 +1,4 @@
+---
+float32[8] light_readings
+float32 max_intensity
+int32 sensor_max_intensity
