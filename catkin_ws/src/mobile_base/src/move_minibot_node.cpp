@@ -6,7 +6,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <mobile_base/profiles.h>;
+#include <mobile_base/profiles.h>
 
 struct robotPose {
   float x;
@@ -23,6 +23,8 @@ enum State {
 
 float ANGLE_TOLERANCY    = 0.10;
 float DISTANCE_TOLERANCY = 0.08;
+
+int MAX_TIME = 1000;
 
 ros::Publisher pubCmdVel;
 
@@ -99,7 +101,16 @@ bool moveCallback(mobile_base::MoveMinibot::Request &req, mobile_base::MoveMinib
 
     State state = SM_CORRECT_ANGLE;
 
+    int current_time = 0;
+
+    res.done = req.distance == 0.0 && req.theta == 0.0;
+
     while(ros::ok() && !res.done) {
+        if (!isRunning()) {
+            res.done = true;
+            std::cout << "************* ALGORITHM STOPPED *************" << std::endl;
+            break;
+        }
         curr  = getCurrentPose(getAbsolutePose(tfBuffer));
         error = getErrorPose();
         std::cout << "-------------------------------------------------------------------" << std::endl;
@@ -107,6 +118,7 @@ bool moveCallback(mobile_base::MoveMinibot::Request &req, mobile_base::MoveMinib
         std::cout << "currrent: x->" << curr.x  << "\ty->" << curr.y  << "\tth->" << curr.th << "\tmag->" << curr.magnitude << std::endl;
         std::cout << "goal:     x->" << goal.x  << "\ty->" << goal.y  << "\tth->" << goal.th << "\tmag->" << goal.magnitude << std::endl;
         std::cout << "error:    x->" << error.x << "\ty->" << error.y << "\tth->" << error.th << "\tmag->" << error.magnitude << std::endl;
+        std::cout << "time execution: ->" << current_time << "ms" << std::endl;
         std::cout << std::endl;
 
         switch(state) {
@@ -133,7 +145,12 @@ bool moveCallback(mobile_base::MoveMinibot::Request &req, mobile_base::MoveMinib
             default:
                 std::cout << "An unexpected error has occurred :(" << std::endl;
         }
-
+        current_time += 10;
+        if (current_time > MAX_TIME) {
+            std::cout << "MOVEMENT HAS EXCEEDED TIME MAX" << std::endl;
+            res.done = true;
+        }
+        
 	    rate.sleep();
     }
     pubCmdVel.publish(stop());

@@ -5,7 +5,7 @@
     <color rgba="0.5 0.5 0.5 1.0" />
   </material>
 
-  <!-- Link para el base_link -->
+  <!-- Link for base_link -->
   <link name="base_link">
     <visual>
       <geometry>
@@ -16,7 +16,18 @@
     </visual>
   </link>
 
-  <!-- Link para el código ArUco -->
+  <!-- Link for lidar sensor -->
+  <link name="laser_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.05" radius="0.01" />
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.0" />
+      <material name="gray" />
+    </visual>
+  </link>
+
+  <!-- Link for aruco's code -->
   <link name="aruco_marker">
     <visual>
       <geometry>
@@ -29,7 +40,14 @@
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </link>
 
-  <!-- Joint que une aruco_marker con base_link -->
+  <!-- Joint laser_link with base_link -->
+  <joint name="laser_to_base" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser_link"/>
+    <origin xyz="0 0 0.12" rpy="0 0 0"/> 
+  </joint>
+
+  <!-- Joint aruco_marker with base_link -->
   <joint name="aruco_to_base" type="fixed">
     <parent link="base_link"/>
     <child link="aruco_marker"/>

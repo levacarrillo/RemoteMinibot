@@ -1,8 +1,0 @@
-<launch>
-    <!-- Initialize hardware -->
-    <include file="$(find hardware)/launch/startup.launch" />
-    <!-- Nodes to move robot -->
-    <rosparam command="load" file="$(find mobile_base)/assets/params/profile.yaml" />
-    <node name="mobile_base_node" pkg="mobile_base" type="mobile_base_node" />
-    <node name="move_minibot_node" pkg="mobile_base" type="move_minibot_node" output="screen" />
-</launch>
