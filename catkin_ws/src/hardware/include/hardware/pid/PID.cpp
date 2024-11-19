@@ -30,8 +30,8 @@ void calculateCurrentSpeeds(volatile long left_count, volatile long right_count,
     if (elapsed_time >= sampling_time) {
         rel_left_count  = left_count  - rel_left_count;
         rel_right_count = right_count - rel_right_count;
-        curr_speed[LEFT]  = M_PI * wheel_diameter * fabs(rel_left_count)  / pulses_per_turn * 1000.0 / elapsed_time;
-        curr_speed[RIGHT] = M_PI * wheel_diameter * fabs(rel_right_count) / pulses_per_turn * 1000.0 / elapsed_time;
+        curr_speed[LEFT]  = 2 * M_PI * wheel_diameter * fabs(rel_left_count)  / pulses_per_turn * 1000.0 / elapsed_time;
+        curr_speed[RIGHT] = 2 * M_PI * wheel_diameter * fabs(rel_right_count) / pulses_per_turn * 1000.0 / elapsed_time;
         
         rel_left_count  = left_count;
         rel_right_count = right_count;
