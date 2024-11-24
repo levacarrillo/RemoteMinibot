@@ -16,13 +16,13 @@ class RobotStatus:
         self.rate = rospy.Rate(10)
 
     def callback(self, msg):
-        min_perc = 20#%
-        max_perc = 99#%
-        min_analog = 418
-        max_analog = 528
+        min_perc = 0#%
+        max_perc = 100#%
+        min_analog = 614
+        max_analog = 1023
 
         batt_percent = min_perc + (msg.data - min_analog) * (max_perc - min_perc) / (max_analog - min_analog)
-        batt_percent_str = str(round(-batt_percent, 1))+'%'
+        batt_percent_str = str(round(batt_percent, 1))+'%'
         self.pubBatt.publish(batt_percent_str)
 
     def get_cpu_temp(self):
