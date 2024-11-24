@@ -1,7 +1,7 @@
 # PARAMETERS FOR LINEAR ADVANCE
-max_linear_speed: 0.5
+max_linear_speed: 0.3
 speed_increment: 0.005
 linear_alpha: 0.45
 # PARAMETERS FOR ANGULAR TWIST
-max_angular_vel: 0.5
-angular_alpha: 0.45
+max_angular_vel: 1.5
+angular_alpha: 0.0005
