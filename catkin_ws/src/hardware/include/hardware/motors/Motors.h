@@ -6,6 +6,7 @@
 class Motors {
     public:
         Motors();
-        void move(bool left_foward, int left_pwm, bool right_foward, int right_pwm);
+        void move(int left_pwm, int right_pwm);
 };
+
 #endif

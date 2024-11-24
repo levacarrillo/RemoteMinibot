@@ -4,7 +4,7 @@
         <rosparam command="load" file="$(find hardware)/params/pid.yaml" />
         <!-- Node to connect with micro-controller -->
         <node name="robot_controller" pkg="rosserial_python" type="serial_node.py" required="true" output="screen" >
-            <param name="port" value="/dev/ttyACM0"/>
+            <param name="port" value="/dev/ttyUSB0"/>
             <param name="baud" value="200000"/>
         </node>
         <!-- Node to get data from hardware -->

@@ -1,5 +1,5 @@
 ARDUINO_DIR = /usr/share/arduino
-ARDUINO_PORT = /dev/ttyACM0
+ARDUINO_PORT = /dev/ttyUSB0
 
 
 CURRENT_DIR := $(shell dirname $(shell pwd))

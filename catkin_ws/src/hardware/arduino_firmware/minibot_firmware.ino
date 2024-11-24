@@ -33,30 +33,6 @@ ros::Publisher lightSensorsPub("/light_sensors", &light_sensors_msg);
 ros::Publisher sharpSensorsPub("/sharp_sensors", &sharp_sensors_msg);
 ros::Subscriber<std_msgs::Float32MultiArray> subMotorsSpeed("/speed_motors", motorsSpeedCallback);
 
-printVariables(double goal_left_speed, float goal_right_speed) {
-  float* pid = motors.getLeftPID();
-  char P[8], I[8], D[8], left_speed[8], right_speed[8], log_msg[50];
-  nh.logwarn("----------------------------------------------------------------------");
-  nh.logwarn("LEFT PID VARIABLES");
-  dtostrf(pid[0], 6, 2, P);
-  dtostrf(pid[1], 6, 2, I);
-  dtostrf(pid[2], 6, 2, D);
-  sprintf(log_msg, "P.->%s I.->%s D.->%s", P, I, D);
-  nh.logwarn(log_msg);
-  pid = motors.getRightPID();
-  nh.logwarn("RIGHT PID VARIABLES");
-  dtostrf(pid[0], 6, 2, P);
-  dtostrf(pid[1], 6, 2, I);
-  dtostrf(pid[2], 6, 2, D);
-  sprintf(log_msg, "P.->%s I.->%s D.->%s", P, I, D);
-  nh.logwarn(log_msg);
-  dtostrf(goal_left_speed, 6, 2, left_speed);
-  dtostrf(goal_right_speed, 6, 2, right_speed);
-  nh.logwarn("GOAL SPEEDS");
-  sprintf(log_msg, "Left speed.->%s - Right speed.->%s", left_speed, right_speed);
-  nh.logwarn(log_msg);
-}
-
 bool getPIDValues() {
   bool params_error = false;
   float left_pid[3] = {0, 0, 0}, right_pid[3] = {0, 0, 0};
@@ -81,14 +57,13 @@ void publish_encoders(){
 }
 
 void publish_curr_speeds(){
-  curr_speeds_msg.data_length = 4;
+  curr_speeds_msg.data_length = 8;
   float* speeds = motors.getCurrVelocities();
-  float speeds_data[4];
-  for (int i=0; i<4; i++) {
+  float speeds_data[8];
+  for (int i=0; i<8; i++) {
     speeds_data[i] = speeds[i];
   }
   curr_speeds_msg.data = speeds_data;
-  
   currSpeedsPub.publish(&curr_speeds_msg);
 }
 
@@ -111,7 +86,6 @@ void publish_sensors_data(){
 }
 
 void motorsSpeedCallback(const std_msgs::Float32MultiArray& msg){
-  // printVariables(msg.data[0], msg.data[1]);
   motors.setSpeeds(msg.data[0], msg.data[1]);
 }
 
@@ -141,5 +115,5 @@ void loop() {
   publish_sensors_data();
 
   nh.spinOnce();
-  delay(20);
+  delay(10);
 }

@@ -1,2 +1,2 @@
-left_pid:  [0.6, 0.4, 1.4]  #pid for left wheel 
-right_pid: [0.6, 0.4, 1.4]  #pid for right wheel
+left_pid:  [1.4, 0.0003, 0.0]  #pid for left wheel 
+right_pid: [1.4, 0.00038, 0.0] #pid for right wheel
