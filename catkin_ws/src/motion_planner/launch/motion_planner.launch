@@ -1,0 +1,12 @@
+<launch>
+    <!-- <param name="/arena_hardware/light_bulbs" value="[False, False]" /> -->
+    <include file="$(find mobile_base)/launch/mobile_base.launch" />
+    
+    <group ns="motion_planner">
+        <rosparam>behavior: light_follower</rosparam>
+        <rosparam>max_advance: 0.15</rosparam>
+        <rosparam>max_turn_angle: 0.7854</rosparam>
+        <rosparam>threshold_follower: 800</rosparam>
+        <node name="motion_planner_node" pkg="motion_planner" type="motion_planner_node" output="screen" />
+    </group>
+</launch>

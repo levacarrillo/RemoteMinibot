@@ -48,7 +48,6 @@ float normalizeAngle(float angle){
 }
 
 void computeOdom(){
-
 	long leftTicks = currEncoderLeft - lastEncoderLeft;
 	long rightTicks = currEncoderRight - lastEncoderRight;
 	lastEncoderLeft = currEncoderLeft;
@@ -71,13 +70,13 @@ int main(int argc, char ** argv){
 	ros::NodeHandle nh;
 	ros::Rate rate(50);
 
-	ros::Subscriber subEncoders = nh.subscribe("/encoders_data", 1, callbackEncoders);
-	ros::Subscriber subCmdVel = nh.subscribe("/cmd_vel", 1, callbackCmdVel);
+	ros::Subscriber subEncoders = nh.subscribe("/hardware/encoders_data", 1, callbackEncoders);
+	ros::Subscriber subCmdVel = nh.subscribe("/mobile_base/cmd_vel", 1, callbackCmdVel);
 
 	ros::Publisher pubJointState = nh.advertise<sensor_msgs::JointState>("/joint_states", 1);
 	ros::Publisher pubOdom  = nh.advertise<nav_msgs::Odometry>("odom", 50);
 
-	pubSpeeds = nh.advertise<std_msgs::Float32MultiArray>("/speed_motors", 1);
+	pubSpeeds = nh.advertise<std_msgs::Float32MultiArray>("/hardware/speed_motors", 1);
 	
 	std::string jointNames[2] = {"left_wheel_joint_connect", "right_wheel_joint_connect"};
 	float jointPositions[2] = {0.0, 0.0};

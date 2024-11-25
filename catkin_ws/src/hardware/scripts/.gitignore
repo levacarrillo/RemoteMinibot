@@ -6,6 +6,7 @@
 !LICENCE
 !readme.MD
 !robot_status_node.py
+!robot_introspection_node.py
 
 # And these subdirectories
 

@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     ros::NodeHandle nh;
     ros::Rate rate(20);
 
-    bool enable_movement = false;
+    bool enable_movements = false;
 
     float max_intensity;
     float* light_readings;
@@ -25,38 +25,38 @@ int main(int argc, char* argv[]) {
     int next_state = 1;
 
     movement movement;
-    MotionPlanner node(nh);
+    MotionPlanner robot(nh);
 
 
     while(ros::ok()) {
-        enable_movement = node.is_running();
-        Behaviors behavior = node.get_behavior();
+        enable_movements = robot.is_running();
+        Behaviors behavior = robot.get_behavior();
 
-        if (enable_movement) {
-            light_readings = node.get_light_readings();
-            max_intensity = node.get_max_intensity();
+        if (enable_movements) {
+            light_readings = robot.get_light_readings();
+            max_intensity = robot.get_max_intensity();
             light_destination = get_light_direction(light_readings);
-            lidar_readings = node.get_lidar_readings();
+            lidar_readings = robot.get_lidar_readings();
             obstacles_detected = obstacle_detection(lidar_readings, 3, 0.2);
 
             switch(behavior) {
                 case NONE:
-                    enable_movement = true;
+                    enable_movements = true;
                 break;
                 case LIGHT_FOLLOWER:
-                    enable_movement = !light_follower(max_intensity, light_readings, &movement, node.get_max_advance());
+                    enable_movements = !light_follower(max_intensity, light_readings, &movement, robot.get_max_advance());
                 break;
                 case SM_DESTINATION:
-                    enable_movement = !sm_destination(max_intensity, light_destination, &movement, &next_state, node.get_max_advance(), node.get_max_turn_angle());
+                    enable_movements = !sm_destination(max_intensity, light_destination, &movement, &next_state, robot.get_max_advance(), robot.get_max_turn_angle());
                 break;
                 case SM_AVOID_OBSTACLES:
-                    enable_movement = !sm_avoid_obstacles(lidar_readings, 3, obstacles_detected, &movement, &next_state, node.get_max_advance(), node.get_max_turn_angle());
+                    enable_movements = !sm_avoid_obstacles(lidar_readings, 3, obstacles_detected, &movement, &next_state, robot.get_max_advance(), robot.get_max_turn_angle());
                 break;
                 case SM_AVOIDANCE_DESTINATION:
-                    enable_movement = !sm_avoidance_destination(lidar_readings, 3, max_intensity, light_destination, obstacles_detected, &movement, &next_state, node.get_max_advance(), node.get_max_turn_angle());
+                    enable_movements = !sm_avoidance_destination(lidar_readings, 3, max_intensity, light_destination, obstacles_detected, &movement, &next_state, robot.get_max_advance(), robot.get_max_turn_angle());
                 break;
                 case USER_SM:
-                    enable_movement = !user_sm(max_intensity, light_readings, lidar_readings, 3, 0.3, light_destination, obstacles_detected, &movement, &next_state, node.get_max_advance(), node.get_max_turn_angle());
+                    enable_movements = !user_sm(max_intensity, light_readings, lidar_readings, 3, 0.3, light_destination, obstacles_detected, &movement, &next_state, robot.get_max_advance(), robot.get_max_turn_angle());
                 break;
                 default:
                     std::cout << " *************** NO BEHAVIOR DEFINED *************** " << std::endl;
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
 
-            if (!enable_movement) node.stop_algorithm();
+            if (!enable_movements) robot.stop_algorithm();
             
             if(behavior != NONE) {
                 // std::cout << "[";
@@ -79,9 +79,10 @@ int main(int argc, char* argv[]) {
                 // std::cout << "Robot: " << std::endl;
                 // std::cout << "Step" << std::endl;
                 std::cout << "Movement: twist: " << movement.twist << " advance: " << movement.advance << "\n" << std::endl;
-                node.move_robot(movement.twist, movement.advance);
+                robot.move_to_pose(movement.twist, movement.advance);
             }
         }
+
         ros::spinOnce();
         rate.sleep();
     }

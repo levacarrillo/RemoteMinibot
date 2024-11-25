@@ -25,13 +25,13 @@ std_msgs::Int16MultiArray sharp_sensors_msg;
 
 void motorsSpeedCallback(const std_msgs::Float32MultiArray& msg);
 
-ros::Publisher battPercPub("/battery_data", &batt_perc_msg);
-ros::Publisher encodersPub("/encoders_data", &encoders_msg);
-ros::Publisher currSpeedsPub("/curr_speeds", &curr_speeds_msg);
-ros::Publisher lineSensorsPub("/line_sensors", &line_sensors_msg);
-ros::Publisher lightSensorsPub("/light_sensors", &light_sensors_msg);
-ros::Publisher sharpSensorsPub("/sharp_sensors", &sharp_sensors_msg);
-ros::Subscriber<std_msgs::Float32MultiArray> subMotorsSpeed("/speed_motors", motorsSpeedCallback);
+ros::Publisher battPercPub("/hardware/battery_data", &batt_perc_msg);
+ros::Publisher encodersPub("/hardware/encoders_data", &encoders_msg);
+ros::Publisher currSpeedsPub("/hardware/curr_speeds", &curr_speeds_msg);
+ros::Publisher lineSensorsPub("/hardware/line_sensors", &line_sensors_msg);
+ros::Publisher lightSensorsPub("/hardware/light_sensors", &light_sensors_msg);
+ros::Publisher sharpSensorsPub("/hardware/sharp_sensors", &sharp_sensors_msg);
+ros::Subscriber<std_msgs::Float32MultiArray> subMotorsSpeed("/hardware/speed_motors", motorsSpeedCallback);
 
 bool getPIDValues() {
   bool params_error = false;

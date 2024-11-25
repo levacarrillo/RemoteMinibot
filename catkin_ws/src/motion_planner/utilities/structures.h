@@ -4,6 +4,7 @@ typedef struct movement_ {
 } movement;
 
 enum Behaviors {
+    NONE,
     LIGHT_FOLLOWER,
     SM_DESTINATION,
     SM_AVOID_OBSTACLES,

@@ -24,7 +24,7 @@ enum State {
 float ANGLE_TOLERANCY    = 0.10;
 float DISTANCE_TOLERANCY = 0.08;
 
-int MAX_TIME = 1000;
+int MAX_TIME = 300;
 
 ros::Publisher pubCmdVel;
 
@@ -153,6 +153,7 @@ bool moveCallback(mobile_base::MoveMinibot::Request &req, mobile_base::MoveMinib
         
 	    rate.sleep();
     }
+
     pubCmdVel.publish(stop());
     return res.done;
 }
@@ -163,8 +164,8 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
     if(!setParameters()) return -1;
 
-    pubCmdVel = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-    ros::ServiceServer moveService = nh.advertiseService("move_robot", moveCallback);
+    pubCmdVel = nh.advertise<geometry_msgs::Twist>("/mobile_base/cmd_vel", 1);
+    ros::ServiceServer moveService = nh.advertiseService("/mobile_base/move_to_pose", moveCallback);
 
     ros::spin();
     return 0;

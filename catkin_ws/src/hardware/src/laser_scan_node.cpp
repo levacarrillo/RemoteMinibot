@@ -28,8 +28,8 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     ros::Rate loop(50);
 
-    ros::Publisher pub = nh.advertise<sensor_msgs::LaserScan>("/scan", 50);
-    ros::Subscriber subs = nh.subscribe<std_msgs::Int16MultiArray>("/sharp_sensors", 1, subs_callback);
+    ros::Publisher pub = nh.advertise<sensor_msgs::LaserScan>("/hardware/scan", 50);
+    ros::Subscriber subs = nh.subscribe<std_msgs::Int16MultiArray>("/hardware/sharp_sensors", 1, subs_callback);
     
     unsigned int num_readings = 3;
     double laser_frequency = 40;

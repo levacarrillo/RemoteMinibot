@@ -7,12 +7,12 @@ from std_msgs.msg import String
 
 class RobotStatus:
     def __init__(self):
-        rospy.init_node('robot_status_node', anonymous=True)
+        rospy.init_node('robot_introspection_node', anonymous=True)
 
-        self.sub = rospy.Subscriber('/battery_data', Int16, self.callback)
-        self.pubBatt = rospy.Publisher('/battery_percent', String, queue_size=10)
-        self.pubTemp = rospy.Publisher('/cpu_temp', String, queue_size=10)
-        self.pubVStatus = rospy.Publisher('/voltage_status', String, queue_size=10)
+        self.sub = rospy.Subscriber('/hardware/battery_data', Int16, self.callback)
+        self.pubBatt = rospy.Publisher('/hardware/battery_percent', String, queue_size=10)
+        self.pubTemp = rospy.Publisher('/hardware/cpu_temp', String, queue_size=10)
+        self.pubVStatus = rospy.Publisher('/hardware/voltage_status', String, queue_size=10)
         self.rate = rospy.Rate(10)
 
     def callback(self, msg):
@@ -68,7 +68,7 @@ class RobotStatus:
 
 if __name__ == '__main__':
     try:
-        print('Running robot_status_node.py by Luis Nava...')
+        print('Running robot_introspection_node.py by Luis Nava...')
         node = RobotStatus()
         node.run()
     except rospy.ROSInterruptException as error:

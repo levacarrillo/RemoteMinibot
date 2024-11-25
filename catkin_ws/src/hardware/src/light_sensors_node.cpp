@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "light_sensors_node");
     ros::NodeHandle nh;    
 
-    ros::ServiceServer service = nh.advertiseService("/light_readings", light_callback);
-    ros::Subscriber subs = nh.subscribe<std_msgs::Int16MultiArray>("/light_sensors", 1, subs_callback);
+    ros::ServiceServer service = nh.advertiseService("/hardware/light_readings", light_callback);
+    ros::Subscriber subs = nh.subscribe<std_msgs::Int16MultiArray>("/hardware/light_sensors", 1, subs_callback);
     ros::spin();
     return 0;
 }

@@ -1,0 +1,14 @@
+<launch>
+    <!-- Robot's description -->
+    <param name="robot_description" command="cat '$(find mobile_base)/assets/urdf/minibot.urdf'" />
+    <!-- Initialize hardware -->
+    <include file="$(find hardware)/launch/hardware.launch" />
+    
+    <group ns="mobile_base">
+        <rosparam>enable_movements: false</rosparam>
+        <rosparam command="load" file="$(find mobile_base)/assets/params/profile_params.yaml" />
+        <!-- Nodes to move robot -->
+        <node name="mobile_base_node" pkg="mobile_base" type="mobile_base_node" />
+        <node name="move_minibot_node" pkg="mobile_base" type="move_minibot_node" output="screen" />
+    </group>
+</launch>

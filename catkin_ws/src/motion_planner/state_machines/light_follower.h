@@ -15,8 +15,8 @@
 float THRESHOLD_FOLLOWER = 7.1;
 
 bool light_follower(float intensity, float* light_values, movement* movements, float max_advance) {
-    if (!ros::param::get("/threshold_follower", THRESHOLD_FOLLOWER)) {
-        ROS_ERROR("COULDN'T FIND /threshold_follower PARAMETER");
+    if (!ros::param::get("/motion_planner/threshold_follower", THRESHOLD_FOLLOWER)) {
+        ROS_ERROR("COULDN'T FIND /motion_planner/threshold_follower PARAMETER");
     }
 
     int sensor_max_value = 0;

@@ -8,8 +8,8 @@
             <param name="baud" value="200000"/>
         </node>
         <!-- Node to get data from hardware -->
-        <node name="robot_status_node" pkg="hardware" type="robot_status_node.py" />
-        <node name="light_sensors_node" pkg="hardware" type="light_sensors_node" output="screen" />
+        <node name="robot_introspection_node" pkg="hardware" type="robot_introspection_node.py" />
+        <node name="light_sensors_node" pkg="hardware" type="light_sensors_node" />
         <node name="laser_scan_node" pkg="hardware" type="laser_scan_node" output="screen" />
     </group>
 </launch>

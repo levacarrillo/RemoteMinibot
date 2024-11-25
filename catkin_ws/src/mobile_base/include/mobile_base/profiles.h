@@ -36,10 +36,10 @@ bool setParameters() {
 }
 
 bool isRunning() {
-    bool enable_movement = false;
-    if(ros::param::has("/enable_movement")) ros::param::get("enable_movement", enable_movement);
-    else { ROS_ERROR("There's no parameter for enable_movement"); return false; }
-    return enable_movement;
+    bool enable_movements = false;
+    if(ros::param::has("/mobile_base/enable_movements")) ros::param::get("/mobile_base/enable_movements", enable_movements);
+    else { ROS_ERROR("There's no parameter for /mobile_base/enable_movements"); return false; }
+    return enable_movements;
 }
 
 float uniformProfile(float goal) {
