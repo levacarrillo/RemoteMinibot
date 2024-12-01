@@ -18,7 +18,7 @@ class RobotStatus:
     def callback(self, msg):
         min_perc = 0#%
         max_perc = 100#%
-        min_analog = 614
+        min_analog = 731
         max_analog = 1023
 
         batt_percent = min_perc + (msg.data - min_analog) * (max_perc - min_perc) / (max_analog - min_analog)
