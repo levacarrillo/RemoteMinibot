@@ -3,10 +3,9 @@
 
 # But these files
 !.gitignore
-!LICENCE
+!LICENSE
 !readme.MD
 
 !motion_planner.h
 !motion_planner_utilities.h
-
 # And these subdirectories

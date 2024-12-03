@@ -3,8 +3,7 @@
 
 # But these files
 !.gitignore
-!LICENCE
+!LICENSE
 !readme.MD
 
-# And these subdirectories
-!catkin_ws/
+!config_plot_profiles.xml

@@ -3,8 +3,7 @@
   <name>mobile_base</name>
   <version>0.0.0</version>
   <description>The mobile_base package</description>
-  <maintainer email="levacarrillo@gmail.com">Luis Nava</maintainer>
-
+  <maintainer email="levacarrillo@gmail.com">luis Nava</maintainer>
   <license>TODO</license>
 
   <buildtool_depend>catkin</buildtool_depend>
@@ -24,7 +23,6 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>tf2_geometry_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>

@@ -6,8 +6,5 @@
 !LICENSE
 !readme.MD
 
-!CMakeLists.txt
-!package.xml
-
 !*.yaml
 # And these subdirectories

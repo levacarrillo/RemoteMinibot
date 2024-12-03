@@ -1,0 +1,9 @@
+# DEFAULT BEHAVIOR
+behavior: "light_follower"
+
+max_advance_distance: 0.15
+# max_turn_angle: 0.7854
+# max_turn_angle: 1.5708
+max_turn_angle: 2.3562
+# THRESHOLDS FOR BEHAVIOR'S TESTS
+threshold_follower: 800

@@ -6,4 +6,6 @@
 !LICENSE
 !readme.MD
 
-!MoveMinibot.srv
+!*.srv
+
+# And these subdirectories

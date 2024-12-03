@@ -3,11 +3,9 @@
 
 # But these files
 !.gitignore
-!LICENCE
+!LICENSE
 !readme.MD
-!mobile_base_node.cpp
-!move_minibot_node.cpp
+
+!*.cpp
 
 # And these subdirectories
-
-# !Rosserial_noetic/

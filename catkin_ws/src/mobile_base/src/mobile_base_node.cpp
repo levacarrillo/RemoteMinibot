@@ -1,50 +1,89 @@
 #include <ros/ros.h>
+#include <nav_msgs/Odometry.h>
+// #include <sensor_msgs/JointState.h>
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TransformStamped.h>
-#include <nav_msgs/Odometry.h>
-#include <sensor_msgs/JointState.h>
-#include <tf2_ros/transform_broadcaster.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <tf2/utils.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <mobile_base/mobile_base_utils.h>
+#include <mobile_base/OdomSetPoint.h>
 
-#define TICKS_PER_METER 4442.0
 
 #define BASE_WIDTH 0.095
+#define TICKS_PER_METER 4442.0
 #define ANGLE_CORRECTION 1.0
 
-long currEncoderLeft = 0;
+long currEncoderLeft  = 0;
 long currEncoderRight = 0;
-long lastEncoderLeft = 0;
+long lastEncoderLeft  = 0;
 long lastEncoderRight = 0;
 double robotX = 0.0, robotY = 0.0, robotT = 0.0;
 
+ros::Publisher pubOdom;
 ros::Publisher pubSpeeds;
 
-void callbackEncoders(const std_msgs::Int32MultiArray::ConstPtr &msg){
-	currEncoderLeft  = msg->data[0];
-	currEncoderRight = msg->data[1];
+void callbackCmdVel(const geometry_msgs::Twist::ConstPtr &msg) {
+    // std::cout << "Received command robot velociy" << std::endl;
+    // std::cout << "mobile_base.->linear x: " << msg->linear.x << "\tangular z: "<< msg->angular.z << std::endl;
+    float rightSpeed = msg->linear.x + msg->angular.z * BASE_WIDTH / 2.0;
+    float leftSpeed  = msg->linear.x - msg->angular.z * BASE_WIDTH / 2.0;
+	
+    std_msgs::Float32MultiArray speeds_msg;
+    speeds_msg.data.resize(2);
+    speeds_msg.data[0] =  leftSpeed;
+    speeds_msg.data[1] = rightSpeed;
+    pubSpeeds.publish(speeds_msg);
 }
 
-void callbackCmdVel(const geometry_msgs::Twist::ConstPtr & msg){
-	std::cout << "Received command robot velociy" << std::endl;
-	float rightSpeed = msg->linear.x + msg->angular.z * BASE_WIDTH / 2.0;
-	float leftSpeed = msg->linear.x - msg->angular.z * BASE_WIDTH / 2.0;
+void callbackEncoders(const std_msgs::Int32MultiArray::ConstPtr &msg){
+    currEncoderLeft  = msg->data[0];
+    currEncoderRight = msg->data[1];
+}
 
-	std_msgs::Float32MultiArray msgSend;
-	msgSend.data.resize(2);
-	msgSend.data[0] =  leftSpeed;
-	msgSend.data[1] = rightSpeed;
-	pubSpeeds.publish(msgSend);
+void publishOdom() {
+    // BROADCAST FRAMES
+    static tf2_ros::TransformBroadcaster br;
+    br.sendTransform(getTFStamped("odom", "base_link", robotX, robotY, robotT));
+    // PUBLISH ODOM DATA
+    tf2::Quaternion q;
+    q.setRPY(0, 0, robotT);
+    geometry_msgs::Quaternion odom_quad = tf2::toMsg(q);
+
+    nav_msgs::Odometry odom;
+    odom.header.stamp = ros::Time::now();
+    odom.header.frame_id = "odom";
+    odom.pose.pose.position.x = robotX;
+    odom.pose.pose.position.y = robotY;
+    odom.pose.pose.position.z =    0.0;
+    odom.pose.pose.orientation = odom_quad;
+    pubOdom.publish(odom);
+}
+
+bool odomCallback(mobile_base::OdomSetPoint::Request &req, mobile_base::OdomSetPoint::Response &res) {
+    // std::cout << "mobile_base.-> req.x: " << req.robot_x <<  "\treq.y: " << req.robot_y << "\treq.w: " << req.robot_w << std::endl;
+    static tf2_ros::StaticTransformBroadcaster br;
+    br.sendTransform(getTFStamped("map", "odom",  req.robot_x, req.robot_y, req.robot_w));
+
+    robotX = 0.0;
+    robotY = 0.0;
+    robotT = 0.0;
+
+    res.done = true;
+    return res.done;
 }
 
 float normalizeAngle(float angle){
-	while(angle > M_PI)
-		angle -= 2 * M_PI;
-	while(angle < -M_PI)
-		angle += 2 * M_PI;
-	return angle;
+    while(angle > M_PI)
+        angle -= 2 * M_PI;
+    while(angle < -M_PI)
+        angle += 2 * M_PI;
+    return angle;
 }
 
 void computeOdom(){
@@ -64,70 +103,40 @@ void computeOdom(){
 	robotY += distX * sin(robotT);
 }
 
-int main(int argc, char ** argv){
-	std::cout << "Starting mobile_base_node by Luis Nava..." << std::endl;
+int main(int argc, char ** argv) {
+    std::cout << "Starting mobile_base_node by Luis Nava..." << std::endl;
 	ros::init(argc, argv, "mobile_base_node");
 	ros::NodeHandle nh;
-	ros::Rate rate(50);
+    ros::Rate rate(30);
 
-	ros::Subscriber subEncoders = nh.subscribe("/hardware/encoders_data", 1, callbackEncoders);
-	ros::Subscriber subCmdVel = nh.subscribe("/mobile_base/cmd_vel", 1, callbackCmdVel);
+    ros::Subscriber subCmdVel = nh.subscribe("/mobile_base/cmd_vel", 1, callbackCmdVel);
+    ros::Subscriber subEncoders = nh.subscribe("/hardware/encoders_data", 1, callbackEncoders);
+    // ros::Publisher pubJointState   = nh.advertise<sensor_msgs::JointState>("/joint_states", 1);
+    ros::ServiceServer odomService = nh.advertiseService("/mobile_base/odom_set_point", odomCallback);
+    pubSpeeds = nh.advertise<std_msgs::Float32MultiArray>("/hardware/speed_motors", 1);
+    pubOdom  = nh.advertise<nav_msgs::Odometry>("odom", 1);
 
-	ros::Publisher pubJointState = nh.advertise<sensor_msgs::JointState>("/joint_states", 1);
-	ros::Publisher pubOdom  = nh.advertise<nav_msgs::Odometry>("odom", 50);
+    if (!setInitialPose()) { return -1; }
 
-	pubSpeeds = nh.advertise<std_msgs::Float32MultiArray>("/hardware/speed_motors", 1);
-	
-	std::string jointNames[2] = {"left_wheel_joint_connect", "right_wheel_joint_connect"};
-	float jointPositions[2] = {0.0, 0.0};
-	sensor_msgs::JointState jointState;
+	// std::string jointNames[2] = {"left_wheel_joint_connect", "right_wheel_joint_connect"};
+	// float jointPositions[2] = {0.0, 0.0};
 
-	nav_msgs::Odometry odom;
+	// sensor_msgs::JointState jointState;
 
-	jointState.name.insert(jointState.name.begin(), jointNames, jointNames + 2);
-	jointState.position.insert(jointState.position.begin(), jointPositions, jointPositions + 2);
+	// jointState.name.insert(jointState.name.begin(), jointNames, jointNames + 2);
+	// jointState.position.insert(jointState.position.begin(), jointPositions, jointPositions + 2);
+    
+    static tf2_ros::StaticTransformBroadcaster br;
+    br.sendTransform(getTFStamped("map", "odom", robot_pose_x, robot_pose_y, robot_pose_w));
+    
+    while(ros::ok()) {
+        computeOdom();
+        // pubJointState.publish(jointState);
+        publishOdom();
+        
+        rate.sleep();
+        ros::spinOnce();
+    }
 
-	tf2_ros::TransformBroadcaster br;
-
-	while(ros::ok()){
-		computeOdom();
-
-		// SENDING BROADCASTER
-		geometry_msgs::TransformStamped transformStamped;
-
-		transformStamped.header.stamp = ros::Time::now();
-		transformStamped.header.frame_id = "odom";
-		transformStamped.child_frame_id = "base_link";
-		
-		transformStamped.transform.translation.x = robotX;
-		transformStamped.transform.translation.y = robotY;
-		transformStamped.transform.translation.z = 0.0;
-
-		tf2::Quaternion q;
-		q.setRPY(0, 0, robotT);
-
-		transformStamped.transform.rotation.x = q.x();
-		transformStamped.transform.rotation.y = q.y();
-		transformStamped.transform.rotation.z = q.z();
-		transformStamped.transform.rotation.w = q.w();
-		
-		br.sendTransform(transformStamped);
-		
-		// SENDING ODOMETRY DATA
-		geometry_msgs::Quaternion odom_quad = tf2::toMsg(q);
-
-		odom.header.stamp = ros::Time::now();
-		odom.header.frame_id = "odom";
-		odom.pose.pose.position.x = robotX;
-		odom.pose.pose.position.y = robotY;
-		odom.pose.pose.position.z =    0.0;
-		odom.pose.pose.orientation = odom_quad;
-		pubOdom.publish(odom);
-
-		// PUBLISHING JOINT STATE
-		pubJointState.publish(jointState);
-
-		rate.sleep();
-		ros::spinOnce();
-	}
+    return 0;
 }

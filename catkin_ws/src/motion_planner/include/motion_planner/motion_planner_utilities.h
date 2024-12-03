@@ -58,15 +58,15 @@ movement generate_output(int move_output, float advance, float twist) {
 int get_light_direction(float *light_readings){
     int sensor = 0;
 
-    std::cout << "i->" << 0 << " value->" << light_readings[0] << std::endl;
+    // std::cout << "i->" << 0 << " value->" << light_readings[0] << std::endl;
 
     for(int i = 1; i < 8; i+=2 ) {
-        std::cout << "i->" << i << " value->" << light_readings[i] << std::endl;
+        // std::cout << "i->" << i << " value->" << light_readings[i] << std::endl;
         if(light_readings[i] > light_readings[sensor])
             sensor = i;
     }
 
-    std::cout << "Sensor->" << sensor << std::endl;
+    // std::cout << "motion_planner_utilities.-> Sensor: " << sensor << "\tAngle: " << sensor * 360 / 8 << std::endl;
 
     if(sensor == 0)      return GO_FOWARD;
     else if(sensor == 1) return GO_FOWARD;
