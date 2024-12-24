@@ -107,7 +107,7 @@ int main(int argc, char ** argv) {
     std::cout << "Starting mobile_base_node by Luis Nava..." << std::endl;
 	ros::init(argc, argv, "mobile_base_node");
 	ros::NodeHandle nh;
-    ros::Rate rate(30);
+    ros::Rate rate(60);
 
     ros::Subscriber subCmdVel = nh.subscribe("/mobile_base/cmd_vel", 1, callbackCmdVel);
     ros::Subscriber subEncoders = nh.subscribe("/hardware/encoders_data", 1, callbackEncoders);

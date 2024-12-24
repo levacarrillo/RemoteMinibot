@@ -76,6 +76,7 @@ bool setInitialPosition() {
 }
 
 robotPose getGoalPose(mobile_base::MoveMinibot::Request req) {
+    std::cout << "simple_move.-> REQ. theta: " << req.theta << "\tdistance: " << req.distance << std::endl;
     robotPose goalPose;
     goalPose.x  = req.distance * cos(req.theta);
     goalPose.y  = req.distance * sin(req.theta);
@@ -86,6 +87,12 @@ robotPose getGoalPose(mobile_base::MoveMinibot::Request req) {
     if (goalPose.th <= -M_PI) goalPose.th += 2 * M_PI;
     return goalPose;
 }
+
+// void waitPressKey() {
+//     do {
+//         std::cout <<  '\n' << "Press a key to continue...";
+//     } while(std::cin.get() != '\n');
+// }
 
 robotPose getErrorPose() {
     robotPose errorPose;
@@ -103,7 +110,7 @@ bool movementCallback(mobile_base::MoveMinibot::Request &req, mobile_base::MoveM
     while(!setInitialPosition()) {}
     curr = getTransform("odom", "base_link");
     goal = getGoalPose(req);
-    ros::Rate rate(10);
+    ros::Rate rate(60);
 
     State state = SM_CORRECT_ANGLE;
 
@@ -114,14 +121,14 @@ bool movementCallback(mobile_base::MoveMinibot::Request &req, mobile_base::MoveM
 
     
     while(ros::ok() && !res.done) {
-        // std::cout << "-------------------------------------------------------------------" << std::endl;
-        // std::cout << "simple_move.-> STATE MACHINE: " << state << std::endl;
-        // std::cout << "simple_move.-> ANGLE_TOLERANCY: " << ANGLE_TOLERANCY << "\tDISTANCE_TOLERANCY: " << DISTANCE_TOLERANCY << std::endl;
-        // std::cout << std::endl;
-        // std::cout << "simple_move.-> Goal->     x:" << roundNumber(goal.x)  << "\ty:" << roundNumber(goal.y)  << "\tth:" << roundNumber(goal.th) << "\tmag:" << roundNumber(goal.magnitude) << std::endl;
-        // std::cout << "simple_move.-> Currrent-> x:" << roundNumber(curr.x)  << "\ty:" << roundNumber(curr.y)  << "\tth:" << roundNumber(curr.th) << "\tmag:" << roundNumber(curr.magnitude) << std::endl;
+         std::cout << "-------------------------------------------------------------------" << std::endl;
+         std::cout << "simple_move.-> ANGLE_TOLERANCY: " << ANGLE_TOLERANCY << "\tDISTANCE_TOLERANCY: " << DISTANCE_TOLERANCY << std::endl;
+         std::cout << "simple_move.-> STATE MACHINE: " << state << std::endl;
+        std::cout << std::endl;
+        std::cout << "simple_move.-> Goal->     x:" << roundNumber(goal.x)  << "\ty:" << roundNumber(goal.y)  << "\tth:" << roundNumber(goal.th) << "\tmag:" << roundNumber(goal.magnitude) << std::endl;
+        std::cout << "simple_move.-> Currrent-> x:" << roundNumber(curr.x)  << "\ty:" << roundNumber(curr.y)  << "\tth:" << curr.th << "\tmag:" << roundNumber(curr.magnitude) << std::endl;
         // std::cout << "simple_move.-> Error->    x:" << roundNumber(error.x) << "\ty:" << roundNumber(error.y) << "\tth:" << roundNumber(error.th) << "\tmag:" << roundNumber(error.magnitude) << std::endl;
-        // std::cout << "simple_move.-> Time execution->" << current_time << "ms" << std::endl;
+        std::cout << "simple_move.-> Time execution->" << current_time << "ms" << std::endl;
         // std::cout << std::endl;
 
         if (!isRunning()) {
@@ -133,33 +140,43 @@ bool movementCallback(mobile_base::MoveMinibot::Request &req, mobile_base::MoveM
         curr = getTransform("odom", "base_link");
         error = getErrorPose();
 
+
         switch(state) {
 
             case SM_CORRECT_ANGLE:
-                // std::cout << "simple_move.-> current_error: " << roundNumber(error.th) << "\tlast_error.->" << last_error << std::endl;
-                if(abs(error.th) >= ANGLE_TOLERANCY) {
-                    pubCmdVel.publish(getAngularVelocity(goal.th,error.th));
-                    // if (last_error != 0 && last_error < error.th) 
-                    //     goal_exceeded = true;
-                    // last_error = error.th;
+                std::cout << "simple_move.-> current_angle_error: " << roundNumber(error.th) << "\tlast_error.->" << last_error << std::endl;
+                if (last_error != 0 && error.th*last_error < 0) {
+                    goal_exceeded = true;
+                    std::cout << "simple_move.-> STATE MACHINE " << state << "\tHAS EXCEEDED GOAL" << std::endl;
+                }
+                if(!goal_exceeded && abs(error.th) >= ANGLE_TOLERANCY) {
+                    pubCmdVel.publish(getAngularVelocity(goal.th, error.th));
+                    last_error = error.th;
                 }
                 else {
-                    last_error = 0;
+                    last_error = 0; // RESTART ERROR COUNT
+                    goal_exceeded = false;
                     state = SM_MOVE_ROBOT;
+                    pubCmdVel.publish(stop());
+                    // waitPressKey();
                 }
             break;
 
             case SM_MOVE_ROBOT:
-                // std::cout << "simple_move.-> current_error: " << roundNumber(error.magnitude) << "\tlast_error.->" << last_error << std::endl;
-                if(abs(error.magnitude) >= DISTANCE_TOLERANCY) {
-                    pubCmdVel.publish(getLinearVelocity(curr.magnitude, goal.magnitude, error.th));
-                    if (last_error != 0 && last_error < error.magnitude) 
-                        goal_exceeded = true;
+                std::cout << "simple_move.-> current_linear_error: " << roundNumber(error.magnitude) << "\tlast_error.->" << last_error << std::endl;
+                if (last_error != 0 && last_error < error.magnitude) {
+                    goal_exceeded = true;
+                    std::cout << "simple_move.-> STATE MACHINE " << state << "\tHAS EXCEEDED GOAL" << std::endl;
+                }
+                if(!goal_exceeded && abs(error.magnitude) >= DISTANCE_TOLERANCY) {
+                    pubCmdVel.publish(getLinearVelocity(curr.magnitude, goal.magnitude, error.magnitude));
                     last_error = error.magnitude;
                 }
                 else {
                     last_error = 0;
+                    goal_exceeded = false;
                     state = SM_FINISH_MOVEMENT;
+                    pubCmdVel.publish(stop());
                 }
             break;
 
@@ -176,20 +193,10 @@ bool movementCallback(mobile_base::MoveMinibot::Request &req, mobile_base::MoveM
         current_time += 10;
 
 
-        if (current_time > MAX_TIME_LIMIT || goal_exceeded) {
-            if (goal_exceeded) {
-                goal_exceeded = false;
-                std::cout << "simple_move.-> STATE MACHINE HAS EXCEEDED GOAL" << std::endl;
-            }
-            else {
-                current_time = 0;
-                std::cout << "simple_move.-> STATE MACHINE HAS EXCEEDED THE MAX TIME" << std::endl;
-            }
-                
-            if(state == SM_CORRECT_ANGLE)
-                state = SM_MOVE_ROBOT;
-            else if (state == SM_MOVE_ROBOT)
-                state = SM_FINISH_MOVEMENT;
+        if (current_time > MAX_TIME_LIMIT) {
+            current_time = 0;
+            state = SM_FINISH_MOVEMENT;
+            std::cout << "simple_move.-> STATE MACHINE HAS EXCEEDED THE MAX TIME" << std::endl;
         }
 
 	    rate.sleep();

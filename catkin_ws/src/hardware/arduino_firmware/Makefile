@@ -9,7 +9,7 @@ ARDUINO_LIBS += ros_lib
 ARDUINO_LIBS += sensors
 ARDUINO_LIBS += encoders
 ARDUINO_LIBS += motors
-ARDUINO_LIBS += pid
+ARDUINO_LIBS += pid2
 
 BOARD_TAG = mega2560
 

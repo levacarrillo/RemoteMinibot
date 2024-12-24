@@ -74,10 +74,22 @@ bool isRunning() {
     return enable_movements;
 }
 
-float uniformProfile(float goal) {
-    float dir = goal / fabs(goal);
-    return dir * max_linear_vel;
+float uniformProfile(float error) {
+    if (error >= 0) {
+        return max_linear_vel;
+    } else {
+        return -max_linear_vel;
+    }
 }
+
+float uniformAngularProfile(float goal) {
+    if (goal >= 0) {
+        return max_angular_vel;
+    } else {
+        return -max_angular_vel;
+    }
+}
+
 
 float trapezoidalProfile(float curr, float goal) {
     float dir = goal / fabs(goal);
@@ -95,15 +107,15 @@ geometry_msgs::Twist getAngularVelocity(float goal_angle, float angle_error) {
     geometry_msgs::Twist angular_vel;
     angular_vel.linear.x = 0.0;
     angular_vel.linear.y = 0.0;
-    angular_vel.angular.z = sigmoideProfile(angle_error, angular_alpha);
-    // angular_vel.angular.z = uniformProfile(goal_angle);
+ //angular_vel.angular.z = sigmoideProfile(angle_error, angular_alpha);
+    angular_vel.angular.z = uniformAngularProfile(goal_angle);
 
     return angular_vel;
 }
 
-geometry_msgs::Twist getLinearVelocity(float curr, float goal, float angle_error) {
+geometry_msgs::Twist getLinearVelocity(float curr, float goal, float distance_error) {
     geometry_msgs::Twist linear_velocity;
-    linear_velocity.linear.x = uniformProfile(goal);
+    linear_velocity.linear.x = uniformProfile(distance_error);
     linear_velocity.linear.y = 0.0;
     // linear_velocity.angular.z = sigmoideProfile(angle_error, linear_alpha);
     linear_velocity.angular.z = 0.0;

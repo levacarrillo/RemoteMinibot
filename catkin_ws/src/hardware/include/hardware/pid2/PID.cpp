@@ -24,11 +24,14 @@ unsigned int previous_time = millis();
 double sampling_time = 40;
 double sampling_timeSec = sampling_time / 1000.0;
 
-double last_left_speed_error  = 0;
-double last_right_speed_error = 0;
+double last_left_pid_output = 0.0;
+double last_right_pid_output = 0.0;
 
-float left_speed_error_area  = 0.0;
-float right_speed_error_area = 0.0;
+double left_speed_error1 = 0.0;
+double left_speed_error2 = 0.0;
+double right_speed_error1 = 0.0;
+double right_speed_error2 = 0.0;
+
 
 PID::PID() {}
 
@@ -81,8 +84,8 @@ float* PID::getCurrVelocities() {
 }
 
 int* speedsToPwm(double left_pid_output, double right_pid_output) {
-    int left_pwm  = map(10 * left_pid_output,  0, 10 * max_rpm, 0, 255);
-    int right_pwm = map(10 * right_pid_output, 0, 10 * max_rpm, 0, 255);
+    int left_pwm  = map(10 * left_pid_output,  0, 10 * max_rpm, 30, 255);
+    int right_pwm = map(10 * right_pid_output, 0, 10 * max_rpm, 30, 255);
     
     if(left_pwm  < 0)  left_pwm = 0;
     if(right_pwm < 0) right_pwm = 0;
@@ -134,24 +137,28 @@ void PID::setEncodersCount(volatile long left_count, volatile long right_count) 
     double left_speed_error  = fabs(goal_rpm[LEFT])  - curr_rpm[LEFT];
     double right_speed_error = fabs(goal_rpm[RIGHT]) - curr_rpm[RIGHT];
 
-    left_speed_error_area  += left_speed_error  * elapsed_time;
-    right_speed_error_area += right_speed_error * elapsed_time;
+    double left_pid_output  =  last_left_pid_output + 
+                               (LP + LD/sampling_time) * left_speed_error +
+                               (-LP + LI * elapsed_time - 2*LD/elapsed_time)*left_speed_error1 +
+                               (LD/sampling_time) * left_speed_error2;
 
-    float left_speed_error_gradient  = (left_speed_error  - last_left_speed_error)  / sampling_time;
-    float right_speed_error_gradient = (right_speed_error - last_right_speed_error) / sampling_time;
+    last_left_pid_output = left_pid_output;
+    left_speed_error2 = left_speed_error1;
+    left_speed_error1 = left_speed_error2;
     
-    double left_pid_output  = LP * left_speed_error +
-                              LI * left_speed_error_area +
-                              LD * left_speed_error_gradient;
+    double right_pid_output  =  last_right_pid_output + 
+                               (RP + RD/sampling_time) * right_speed_error +
+                               (-RP + RI * elapsed_time - 2 * RD / elapsed_time) * right_speed_error1 +
+                               (RD / sampling_time) * right_speed_error2;
 
-    double right_pid_output = RP * right_speed_error +
-                              RI * right_speed_error_area +
-                              RD * right_speed_error_gradient;
+    last_right_pid_output = right_pid_output;
+    right_speed_error2 = right_speed_error1;
+    right_speed_error1 = right_speed_error2;
 
     int* pwm = speedsToPwm(left_pid_output, right_pid_output);
 
-    last_left_speed_error  = left_speed_error;
-    last_right_speed_error = right_speed_error;
+    // last_left_speed_error  = left_speed_error;
+    // last_right_speed_error = right_speed_error;
 
     if (goal_rpm[LEFT] == 0) {
         pwm[LEFT] = 0;
