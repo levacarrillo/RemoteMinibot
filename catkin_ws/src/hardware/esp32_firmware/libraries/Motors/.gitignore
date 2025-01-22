@@ -1,0 +1,13 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+
+# And these subdirectories
+!src/
+!src/*.h
+!src/*.cpp
+!library.properties

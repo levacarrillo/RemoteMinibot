@@ -1,0 +1,14 @@
+# Ignore everything
+*
+
+# But these files
+!.gitignore
+!LICENCE
+!readme.MD
+
+# And these subdirectories
+!Blink/
+!Encoders/
+!Motors/
+!pid/
+!Sensors/
