@@ -2,6 +2,7 @@
 #define MOBILE_BASE_UTILS_H
 
 #include <iostream>
+#include <tf2/utils.h>
 #include <geometry_msgs/Twist.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 

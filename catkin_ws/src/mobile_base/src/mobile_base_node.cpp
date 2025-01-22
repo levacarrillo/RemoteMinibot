@@ -1,12 +1,12 @@
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
 // #include <sensor_msgs/JointState.h>
-#include <std_msgs/Int32MultiArray.h>
+// #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/TransformStamped.h>
-#include <tf2/utils.h>
+// #include <tf2/utils.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/transform_broadcaster.h>
@@ -24,6 +24,7 @@ long currEncoderRight = 0;
 long lastEncoderLeft  = 0;
 long lastEncoderRight = 0;
 double robotX = 0.0, robotY = 0.0, robotT = 0.0;
+double vx = 0.0, vy = 0.0, vth = 0.0;
 
 ros::Publisher pubOdom;
 ros::Publisher pubSpeeds;
@@ -41,9 +42,13 @@ void callbackCmdVel(const geometry_msgs::Twist::ConstPtr &msg) {
     pubSpeeds.publish(speeds_msg);
 }
 
-void callbackEncoders(const std_msgs::Int32MultiArray::ConstPtr &msg){
-    currEncoderLeft  = msg->data[0];
-    currEncoderRight = msg->data[1];
+void callbackSensors(const std_msgs::Float32MultiArray::ConstPtr &msg){
+    currEncoderLeft  = msg->data[15];
+    currEncoderRight = msg->data[16];
+
+    vx  = (msg->data[9] + msg->data[11]) / 2;
+    vy  = 0.0;
+    vth = (msg->data[9] - msg->data[11]) / 2;
 }
 
 void publishOdom() {
@@ -62,6 +67,12 @@ void publishOdom() {
     odom.pose.pose.position.y = robotY;
     odom.pose.pose.position.z =    0.0;
     odom.pose.pose.orientation = odom_quad;
+
+    odom.child_frame_id = "base_link";
+    odom.twist.twist.linear.x  = vx;
+    odom.twist.twist.linear.y  = vy;
+    odom.twist.twist.angular.z = vth;
+
     pubOdom.publish(odom);
 }
 
@@ -101,16 +112,19 @@ void computeOdom(){
 	robotT = normalizeAngle(robotT + deltaTheta);
 	robotX += distX * cos(robotT);
 	robotY += distX * sin(robotT);
+    double magnitude = sqrt(pow(robotX, 2) + pow(robotY, 2));
+    // std::cout << "mobile_base.-> robotX: " << robotX << "\trobotY: " << robotY << "\tmagnitude: " << magnitude << "\trobotT: " << robotT * 180 / M_PI << std::endl;
+    // std::cout << "mobile_base.-> robotX: " << robotX <<  "\trobotY: " << robotY << "\trobotT: " << robotT * 180 / M_PI << std::endl;
 }
 
 int main(int argc, char ** argv) {
     std::cout << "Starting mobile_base_node by Luis Nava..." << std::endl;
 	ros::init(argc, argv, "mobile_base_node");
 	ros::NodeHandle nh;
-    ros::Rate rate(60);
+    ros::Rate rate(2);
 
     ros::Subscriber subCmdVel = nh.subscribe("/mobile_base/cmd_vel", 1, callbackCmdVel);
-    ros::Subscriber subEncoders = nh.subscribe("/hardware/encoders_data", 1, callbackEncoders);
+    ros::Subscriber subEncoders = nh.subscribe("/hardware/sensors", 1, callbackSensors);
     // ros::Publisher pubJointState   = nh.advertise<sensor_msgs::JointState>("/joint_states", 1);
     ros::ServiceServer odomService = nh.advertiseService("/mobile_base/odom_set_point", odomCallback);
     pubSpeeds = nh.advertise<std_msgs::Float32MultiArray>("/hardware/speed_motors", 1);

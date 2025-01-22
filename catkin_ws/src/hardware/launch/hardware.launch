@@ -1,11 +1,12 @@
 <launch>
     <group ns="hardware">
         <rosparam command="load" file="$(find hardware)/params/robot_id.yaml" />
-        <rosparam command="load" file="$(find hardware)/params/pid.yaml" />
+        <!-- <rosparam command="load" file="$(find hardware)/params/pid.yaml" /> -->
         <!-- Node to connect with micro-controller -->
         <node name="robot_controller" pkg="rosserial_python" type="serial_node.py" required="true" output="screen" >
-            <param name="port" value="/dev/ttyUSB0"/>
-            <param name="baud" value="200000"/>
+            <param name="port" value="/dev/ttyACM0" />
+            <param name="baud" value="115200" />
+            <param name="buffer_size" value="1024" />
         </node>
         <!-- Node to get data from hardware -->
         <node name="robot_introspection_node" pkg="hardware" type="robot_introspection_node.py" />

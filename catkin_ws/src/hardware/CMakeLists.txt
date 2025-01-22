@@ -32,14 +32,14 @@ include_directories(
 )
 
 
-add_executable(serial_reader src/serial_reader.cpp)
+# add_executable(serial_reader src/serial_reader.cpp)
 add_executable(light_sensors_node src/light_sensors_node.cpp)
 add_executable(laser_scan_node src/laser_scan_node.cpp)
 
-add_dependencies(serial_reader ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(serial_reader ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(light_sensors_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(laser_scan_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(serial_reader ${catkin_LIBRARIES})
+# target_link_libraries(serial_reader ${catkin_LIBRARIES})
 target_link_libraries(light_sensors_node ${catkin_LIBRARIES})
 target_link_libraries(laser_scan_node ${catkin_LIBRARIES})

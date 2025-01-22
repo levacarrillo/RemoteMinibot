@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include <std_msgs/Int16MultiArray.h>
+#include <std_msgs/Float32MultiArray.h>
 #include <sensor_msgs/LaserScan.h>
 
 #define first_sensor_id 2
@@ -12,13 +12,19 @@
 
 float sharp_distance[3];
 
-void subs_callback(const std_msgs::Int16MultiArray::ConstPtr& msg) {
-    for(size_t i=first_sensor_id; i<last_sensor_id; i++) {
-        int sharp_reading = msg->data[i];
-        sharp_distance[i-first_sensor_id] = a * pow(sharp_reading, b) + c;
-        // std::cout << "sharp_distance: " << i << " -> " << sharp_distance[i-first_sensor_id] << std::endl;
-        if(sharp_distance[i - first_sensor_id] > 0.7) {
-            sharp_distance[i - first_sensor_id] = 0.7;
+void subs_callback(const std_msgs::Float32MultiArray::ConstPtr& msg) {
+    // for(size_t i=first_sensor_id; i<last_sensor_id; i++) {
+    //     int sharp_reading = msg->data[i];
+    //     sharp_distance[i-first_sensor_id] = a * pow(sharp_reading, b) + c;
+    //     // std::cout << "sharp_distance: " << i << " -> " << sharp_distance[i-first_sensor_id] << std::endl;
+    //     if(sharp_distance[i - first_sensor_id] > 0.7) {
+    //         sharp_distance[i - first_sensor_id] = 0.7;
+    //     }
+    // }
+    for (size_t i=0; i<3; i++) {
+        sharp_distance[i] = a * pow(msg->data[i], b) + c;
+        if(sharp_distance[i] > 0.7) {
+            sharp_distance[i] = 0.7;
         }
     }
 }
@@ -29,7 +35,7 @@ int main(int argc, char** argv) {
     ros::Rate loop(50);
 
     ros::Publisher pub = nh.advertise<sensor_msgs::LaserScan>("/hardware/scan", 50);
-    ros::Subscriber subs = nh.subscribe<std_msgs::Int16MultiArray>("/hardware/sharp_sensors", 1, subs_callback);
+    ros::Subscriber subs = nh.subscribe<std_msgs::Float32MultiArray>("/hardware/sensors", 1, subs_callback);
     
     unsigned int num_readings = 3;
     double laser_frequency = 40;

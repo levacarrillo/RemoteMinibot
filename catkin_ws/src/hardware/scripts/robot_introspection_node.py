@@ -2,14 +2,15 @@
 
 import rospy
 import subprocess
-from std_msgs.msg import Int16
+from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import String
 
 class RobotStatus:
     def __init__(self):
         rospy.init_node('robot_introspection_node', anonymous=True)
 
-        self.sub = rospy.Subscriber('/hardware/battery_data', Int16, self.callback)
+        # self.sub = rospy.Subscriber('/hardware/battery_data', Int16, self.callback)
+        self.sub = rospy.Subscriber('/hardware/sensors', Float32MultiArray, self.callback)
         self.pubBatt = rospy.Publisher('/hardware/battery_percent', String, queue_size=10)
         self.pubTemp = rospy.Publisher('/hardware/cpu_temp', String, queue_size=10)
         self.pubVStatus = rospy.Publisher('/hardware/voltage_status', String, queue_size=10)
@@ -21,7 +22,9 @@ class RobotStatus:
         min_analog = 731
         max_analog = 1023
 
-        batt_percent = min_perc + (msg.data - min_analog) * (max_perc - min_perc) / (max_analog - min_analog)
+        # print(f"Battery sensor: {msg.data[17]}")
+        batt_percent = min_perc + (msg.data[17] - min_analog) * (max_perc - min_perc) / (max_analog - min_analog)
+        batt_percent = 20.0;
         batt_percent_str = str(round(batt_percent, 1))+'%'
         self.pubBatt.publish(batt_percent_str)
 

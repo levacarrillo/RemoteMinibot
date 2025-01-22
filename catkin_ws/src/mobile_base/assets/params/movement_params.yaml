@@ -3,16 +3,16 @@ robot_pose_x: 0.90
 robot_pose_y: 0.62
 robot_pose_w: 0.0
 # PARAM TO ENABLE MOVEMENTS FROM move_minibot_node
-enable_movements: false
+enable_movements: true
 # TIME LIMIT FOR MOVEMENTS [ms]
-max_time_limit: 1500
+max_time_limit: 150000
 # POSITION TOLERANCY
-angle_tolerancy: 0.06109
+angle_tolerancy: 0.0056
 distance_tolerancy: 0.003
 # PARAMETERS FOR LINEAR ADVANCE
-max_linear_vel: 0.3
+max_linear_vel: 0.2
 speed_increment: 0.005
 linear_alpha: 0.45
 # PARAMETERS FOR ANGULAR TWIST
-max_angular_vel: 0.6
+max_angular_vel: 0.3
 angular_alpha: 0.06
