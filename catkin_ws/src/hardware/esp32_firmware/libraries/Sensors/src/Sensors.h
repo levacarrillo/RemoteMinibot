@@ -9,6 +9,7 @@ class Sensors {
 	    int sharp[8];
 	    bool line[3];
 	    int battery;
+		bool stop_button;
 
     public: 
 	    Sensors();
@@ -17,5 +18,6 @@ class Sensors {
 		bool* get_line_status();
 	    int* get_lights_status();
 	    int* get_sharps_status();
+		bool get_stop_button_status();
 };
 #endif

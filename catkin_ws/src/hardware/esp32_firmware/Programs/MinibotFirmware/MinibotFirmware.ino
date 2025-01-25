@@ -23,9 +23,9 @@ ros::Publisher sensorsPub("/hardware/sensors", &sensors_msg);
 ros::Subscriber<std_msgs::Float32MultiArray> subMotorsSpeed("/hardware/speed_motors", motorsSpeedCallback);
 
 void publish_sensors() {
-  sensors_msg.data_length = 21;
+  sensors_msg.data_length = 22;
   
-  float data[20];
+  float data[21];
   float* speeds = motors.getCurrVelocities();
   sensors.read();
 
@@ -46,9 +46,10 @@ void publish_sensors() {
   data[16] = encoders.get_right_count();
 
   data[17] = sensors.get_battery_status();
+  data[18] = sensors.get_stop_button_status();
 
   int* sharp_sensors_array = sensors.get_sharps_status();
-  for (int i=18; i<21; i++) {
+  for (int i=19; i<22; i++) {
     data[i] = sharp_sensors_array[i-18];
   }
 

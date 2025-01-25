@@ -4,8 +4,11 @@
 
 // LINE SENSORS
 #define RIGHT_LINE_SENSOR   2
-#define LEFT_LINE_SENSOR    3
+#define LEFT_LINE_SENSOR    37
 #define CENTER_LINE_SENSOR  42 
+
+// STOP BUTTON
+#define STOP_BUTTON 39
 
 
 
@@ -14,6 +17,7 @@ Sensors::Sensors() {
     pinMode(RIGHT_LINE_SENSOR,  INPUT);
     pinMode(LEFT_LINE_SENSOR,   INPUT);
     pinMode(CENTER_LINE_SENSOR, INPUT);   
+    pinMode(STOP_BUTTON, INPUT);
 }
 
 void Sensors::read() {
@@ -40,6 +44,9 @@ void Sensors::read() {
     // BATTERY SENSOR
     battery = analogRead(1);
 
+    // STOP BUTTON
+    stop_button = digitalRead(STOP_BUTTON);
+
 
     line[0] = digitalRead(RIGHT_LINE_SENSOR);
     line[1] = digitalRead(LEFT_LINE_SENSOR);
@@ -60,4 +67,8 @@ int* Sensors::get_sharps_status() {
 
 bool* Sensors::get_line_status() {
     return line;
+}
+
+bool Sensors::get_stop_button_status() {
+    return stop_button;
 }
